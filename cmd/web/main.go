@@ -15,32 +15,33 @@ const ccsVersion = "1"
 
 type config struct {
 	port int
-	env string
-	api string
-	db struct {
+	env  string
+	api  string
+	db   struct {
 		dsn string
 	}
 	stripe struct {
 		secret string
-		key string
+		key    string
 	}
 }
 
 type application struct {
-	config config
-	infolog *log.Logger
-	errorlog *log.Logger
+	config        config
+	infolog       *log.Logger
+	errorlog      *log.Logger
 	templateCache map[string]*template.Template
-	version string
+	version       string
 }
+
 func (app *application) serve() error {
 	srv := &http.Server{
-		Addr: fmt.Sprintf(":%d", app.config.port),
-		Handler: app.routes(),
-		IdleTimeout: 30 * time.Second,
-		ReadTimeout: 10 * time.Second,
+		Addr:              fmt.Sprintf(":%d", app.config.port),
+		Handler:           app.routes(),
+		IdleTimeout:       30 * time.Second,
+		ReadTimeout:       10 * time.Second,
 		ReadHeaderTimeout: 5 * time.Second,
-		WriteTimeout: 5 * time.Second,
+		WriteTimeout:      5 * time.Second,
 	}
 
 	app.infolog.Printf("Starting HTTP server in %s mode on port %d", app.config.env, app.config.port)
@@ -58,18 +59,18 @@ func main() {
 
 	cfg.stripe.key = os.Getenv("STRIPE_KEY")
 	cfg.stripe.secret = os.Getenv("STRIPE_SECRET")
-	
+
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
 	tc := make(map[string]*template.Template)
 
 	app := &application{
-		config: cfg,
-		infolog: infoLog,
-		errorlog: errorLog,
+		config:        cfg,
+		infolog:       infoLog,
+		errorlog:      errorLog,
 		templateCache: tc,
-		version: version,
+		version:       version,
 	}
 
 	err := app.serve()
